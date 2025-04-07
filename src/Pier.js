@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 
 export default function Pier() {
 
-    const [result, setResult] = useState('');
+    const [result, setResult] = useState('3.14');
     const [isLoading, setIsLoading] = useState(false);
+    const [digits, setDigits] = useState('-'); 
 
     const handleButtonClick = () => {
         if (window.Worker) {
@@ -24,16 +25,42 @@ export default function Pier() {
                 myWorker.terminate();
             };
 
-            myWorker.postMessage('start');
+            const digitCount = parseInt(digits, 10);
+            if (isNaN(digitCount) || digitCount < 1) {
+                setResult('Please enter a valid number of digits');
+                setIsLoading(false);
+                return;
+            }
+
+            myWorker.postMessage(digitCount);
         } else {
             setResult('Web Workers are not supported in this browser');
         }
     };
 
 
+    const handleInputChange = (e) => {
+        const value = e.target.value;
+        setDigits(value);
+    };
+
     return (
         <div style={{ padding: '20px' }}>
             <h1>workπ</h1>
+            <h2>How many digits of pi you want?</h2>
+            <input 
+                type='number'
+                value={digits}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                placeholder='Enter number of digits here'
+                style={{
+                    padding: '10px 20px',
+                    fontSize: '16px',
+                    cursor: isLoading ? 'not-allowed' : 'pointer'
+                }}
+            >
+            </input>
             <button
                 onClick={handleButtonClick}
                 disabled={isLoading}
@@ -45,7 +72,8 @@ export default function Pier() {
             >
                 {isLoading ? 'Processing...' : 'Calculate'}
             </button>
-            <p style={{ marginTop: '20px' }}>Result: {result}</p>
+            
+            <p style={{ marginTop: '20px',  maxWidth: '90vw'}}>{result}</p>
         </div>
     );
 }
