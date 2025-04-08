@@ -1,42 +1,50 @@
-import Decimal from 'decimal.js/decimal';
+const BigNumber = require('bignumber.js');
 
-Decimal.config({ precision: 300 });
+BigNumber.config({
+    DECIMAL_PLACES: 1000000,
+});
 
-function get(n = 200) {
-    if (n < 0) {
-        return '0';
-    } // Return 0 if a valid value was not passed
 
-    if (n === 0) {
-        return '3';
-    } // Skip calculations
+// Implementation of the Gauss-Legendre algorithm
+// https://docs.rs/compute-pi/1.0.0/src/compute_pi/lib.rs.html#1-92
+function get(digits) {
+    const precision = Math.ceil(digits * 3.3219280948874) + 10;
+    
+    BigNumber.config({ DECIMAL_PLACES: precision });
+    
+    const threshold = new BigNumber(10).pow(-digits);
 
-    let p16 = new Decimal(1);
-    let pi = new Decimal(0);
+    let a = new BigNumber(1);
+    const two = new BigNumber(2);
+    let b = new BigNumber(1).div(two.sqrt());
+    let t = new BigNumber(0.25);
+    let p = new BigNumber(1);
+    let piOld = new BigNumber(0);
 
-    // Check the precision needed
-    const { precision } = Decimal.config({});
-    const one = new Decimal(1);
-    const two = new Decimal(2);
-    const four = new Decimal(4);
-    let k8 = new Decimal(0);
+    while (true) {
+        const sum = a.plus(b);
+        const aNext = sum.div(2);
+        const product = a.times(b);
+        b = product.sqrt();
+        
+        const difference = a.minus(aNext);
+        const differenceSquared = difference.pow(2);
+        t = t.minus(p.times(differenceSquared));
+        
+        a = aNext;
+        p = p.times(2);
 
-    for (let k = new Decimal(0); k.lte(precision); k = k.plus(one)) {
-        const f = four
-            .div(k8.plus(1))
-            .minus(two.div(k8.plus(4)))
-            .minus(one.div(k8.plus(5)))
-            .minus(one.div(k8.plus(6)));
+        const numerator = sum.pow(2);
+        const denominator = t.times(4);
+        const pi = numerator.div(denominator);
 
-        pi = pi.plus(p16.times(f));
-        p16 = p16.div(16);
-        k8 = k8.plus(8);
+        const piDiff = pi.minus(piOld).abs();
+        if (piDiff.lt(threshold)) {
+            return pi.toString().slice(0, digits + 2);
+        }
+
+        piOld = pi;
     }
-
-
-    // Validate number of places needed
-    n = Math.min(n, 200);
-    return pi.toPrecision(n + 2).slice(0, -1);
 }
 
 export default { get };

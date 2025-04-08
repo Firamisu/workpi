@@ -47,7 +47,7 @@ export default function Pier() {
     return (
         <div style={{ padding: '20px' }}>
             <h1>workπ</h1>
-            <h2>How many digits of pi you want?</h2>
+            <h2>How many digits of π do you want?</h2>
             <input 
                 type='number'
                 value={digits}
@@ -73,7 +73,15 @@ export default function Pier() {
                 {isLoading ? 'Processing...' : 'Calculate'}
             </button>
             
-            <p style={{ marginTop: '20px',  maxWidth: '90vw'}}>{result}</p>
+            <div style={{
+                overflowWrap: 'anywhere',
+                textAlign: 'left',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <p style={{ marginTop: '20px',  maxWidth: '100vw'}}>{result}</p>
+            </div>
         </div>
     );
 }
