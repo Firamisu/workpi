@@ -1,5 +1,5 @@
 import './App.css';
-import Pier from './Pier';
+import Pier from './components/Pier';
 
 function App() {
   return (

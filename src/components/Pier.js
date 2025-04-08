@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function Pier() {
 
     const [result, setResult] = useState('3.14');
     const [isLoading, setIsLoading] = useState(false);
     const [digits, setDigits] = useState('-'); 
+    const [hue, setHue] = useState(0);
 
     const handleButtonClick = () => {
         if (window.Worker) {
             setIsLoading(true);
             setResult('Processing...');
 
-            const myWorker = new Worker(new URL('./calcPiWorker.js', import.meta.url));
+            const myWorker = new Worker(new URL('../workers/calcPiWorker.js', import.meta.url));
 
             myWorker.onmessage = function (e) {
                 setResult(e.data);
@@ -44,9 +45,22 @@ export default function Pier() {
         setDigits(value);
     };
 
+
+    useEffect(() => {
+        document.body.style.backgroundColor = `hsl(${hue}, 70%, 60%)`;
+    }, [hue]);
+
     return (
         <div style={{ padding: '20px' }}>
             <h1>workπ</h1>
+            <input
+                type="range"
+                min="0"
+                max="360"
+                value={hue}
+                onChange={(e) => setHue(e.target.value)}
+                style={{ width: '300px' }}
+            />
             <h2>How many digits of π do you want?</h2>
             <input 
                 type='number'
